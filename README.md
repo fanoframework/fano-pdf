@@ -1,6 +1,8 @@
-# Fano Web Framework Skeleton Application
+# Fano PDF Generator
 
-Web application skeleton using Fano Framework, Pascal web application framework
+Sample web application that generate PDF document on the fly using Fano Framework and Free Pascal fcl-pdf library.
+
+PDF generation code is taken from [fcl-pdf example program](https://github.com/graemeg/freepascal/blob/master/packages/fcl-pdf/examples/testfppdf.lpr).
 
 This project is generated using [Fano CLI](https://github.com/fanoframework/fano-cli)
 command line tools to help scaffolding web application using Fano Framework.
@@ -8,35 +10,41 @@ command line tools to help scaffolding web application using Fano Framework.
 ## Requirement
 
 - [Free Pascal](https://www.freepascal.org/) >= 3.0
-- [libcurl development](https://curl.haxx.se/libcurl/)
-- Web Server (Apache, nginx)
+- Web Server (Apache 2.4, nginx)
+- mod_proxy_scgi (Apache)
 - [Fano Web Framework](https://github.com/fanoframework/fano)
 
 ## Installation
 
-### Build
-
-#### libcurl development package installation
-
-Check if libcurl package for development is installed by running `curl-config`.
+### TL;DR
 
 ```
-$ curl-config --version
-```
-If libcurl installed you will get something like `libcurl x.xx.x` where `x.xx.x` is version. For example `libcurl 7.47.0` otherwise you get
-
-```
-The program 'curl-config' can be found in the following packages:
- * libcurl4-gnutls-dev
- * libcurl4-nss-dev
- * libcurl4-openssl-dev
-Try: sudo apt install <selected package>
+$ git clone git@github.com:fanofamework/fano-pdf.git --recursive
+$ ./tools/config.setup.sh
+$ ./build.sh
 ```
 
-In case libcurl not installed, run
+If you have Fano CLI installed, you can setup virtual host configuration by running
+
 ```
-$ sudo apt install libcurl4-gnutls-dev
+$ sudo fanocli --deploy-scgi=pdf.fano
 ```
+If you use nginx, add `--web-server=nginx`
+
+```
+$ sudo fanocli --deploy-scgi=pdf.fano --web-server=nginx
+```
+Please read [Deploy as SCGI application](https://doc.fano.web.id/deployment/scgi/) Fano Framework documentation for more information.
+
+If you do not have Fano CLI installed, you need to setup virtual host manually as shown in *Run with a Web Server* section of this document.
+
+After you setup virtual host, run application binary
+
+```
+$ ./bin/app.cgi
+```
+
+Open Internet browser and go to URL http://basic-auth.fano.
 
 ### Free Pascal installation
 
@@ -48,7 +56,7 @@ If you see something like `Free Pascal Compiler version 3.0.4`,  you are good to
 
 Clone this repository
 
-    $ git clone git@github.com:fanofamework/fano-app.git --recursive
+    $ git clone git@github.com:fanofamework/fano-pdf.git --recursive
 
 `--recursive` is needed so git also pull [Fano](https://github.com/fanoframework/fano) repository.
 
@@ -122,74 +130,37 @@ environment variable. By default is `app.cgi` filename.
 
 ### Run with a webserver
 
-Setup a virtual host. Please consult documentation of web server you use.
-
-For example on Apache,
 
 ```
 <VirtualHost *:80>
-     ServerName www.example.com
-     DocumentRoot /home/example/public
 
-     <Directory "/home/example/public">
-         Options +ExecCGI
-         AllowOverride FileInfo
-         Require all granted
-         DirectoryIndex app.cgi
-         AddHandler cgi-script .cgi
-     </Directory>
+    ServerAdmin admin@basic-auth.fano
+    DocumentRoot "/path/to/repo/directory/public"
+
+    ServerName basic-auth.fano
+    ServerAlias *.basic-auth.fano
+
+    ErrorLog /var/log/apache2/basic-auth.fano-error.log
+    CustomLog /var/log/apache2/basic-auth.fano-access.log combined
+
+    <Directory "/path/to/repo/directory/public">
+        Options -MultiViews -FollowSymlinks +SymlinksIfOwnerMatch +ExecCGI
+        AllowOverride FileInfo Indexes
+        Require all granted
+    </Directory>
+
+    ProxyRequests Off
+    ProxyPassMatch "/css|js|images|img|plugins|bower_components(.*)" !
+    ProxyPassMatch ^/(.*)$ "scgi://127.0.0.1:20477"
 </VirtualHost>
-```
-On Apache, you will need to enable CGI module, such as `mod_cgi` or `mod_cgid`. If CGI module not loaded, above virtual host will cause `app.cgi` is downloaded instead of executed.
-
-For example, on Debian, this will enable `mod_cgi` module.
 
 ```
-$ sudo a2enmod cgi
+On Apache, you will need to enable SCGI module, `mod_proxy` and `mod_proxy_scgi`. In Apache 2.4, this modules is already installed and enabled. If not, then run
+
+```
+$ sudo a2enmod proxy_scgi
 $ sudo systemctl restart apache2
 ```
-
-Depending on your server setup, for example, if  you use `.htaccess`, add following code:
-
-```
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ app.cgi [L]
-</IfModule>
-```
-and put `.htaccess` file in same directory as `app.cgi` file (i.e., in `public` directory).
-
-Content of `.htaccess` basically tells Apache to serve existing files/directories directly. For any non-existing files/directories, pass them to our application.
-
-### Simulate run on command line
-
-```
-$ cd public
-$ REQUEST_METHOD=GET \
-  REQUEST_URI=/test/test \
-  SERVER_NAME=juhara.com \
-  ./app.cgi
-```
-
-`tools/simulate.run.sh` is bash script that can be used to simplify simulating run
-application in shell.
-
-    $ ./tools/simulate.run.sh
-
-or to change route to access, set `REQUEST_URI` variable.
-
-    $ REQUEST_URI=/test/test ./tools/simulate.run.sh
-
-This is similar to simulating browser requesting this page,for example,
-
-    $ wget -O- http://[your fano app hostname]/test/test
-
-However, running using `tools/simulate.run.sh` allows you to view output of `heaptrc`
-unit for detecting memory leak (if you enable `-gh` switch in `build.dev.cfg`).
-
-
 ## Deployment
 
 You need to deploy only executable binary and any supporting files such as HTML templates, images, css stylesheets, application config.

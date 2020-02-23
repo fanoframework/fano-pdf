@@ -26,7 +26,7 @@ type
      *------------------------------------------------*)
     THomePdfView = class(TInjectableObject, IView)
     private
-        function createDocument() : TPDFDocument;
+        function createDocument(const txt : string) : TPDFDocument;
         procedure SimpleText(D: TPDFDocument; APage: integer; const txt : string);
     public
 
@@ -50,6 +50,15 @@ uses
     Classes,
     SysUtils;
 
+    (*!---------------------------------
+     * generate simple text in PDF document
+     *----------------------------------
+     * @param d pdf document
+     * @param apage index of page
+     * @param txt text to write
+     *-------------------------------------
+     * @link https://github.com/graemeg/freepascal/blob/master/packages/fcl-pdf/examples/testfppdf.lpr
+     *------------------------------------*)
     procedure THomePdfView.SimpleText(
         D: TPDFDocument;
         APage: integer;
@@ -73,7 +82,7 @@ uses
 
         P.SetFont(FtWaterMark, 120);
         P.SetColor(clWaterMark, false);
-        P.WriteText(55, 190, 'Sample', 45);
+        P.WriteText(55, 190, txt, 45);
 
         // -----------------------------------
         // Write text using PDF standard fonts
@@ -86,30 +95,32 @@ uses
 
     end;
 
-    function THomePdfView.createDocument() : TPDFDocument;
+    (*!---------------------------------
+     * create new PDF document
+     *----------------------------------
+     * @param txt text to write
+     * @return pdf document
+     *-------------------------------------
+     * @link https://github.com/graemeg/freepascal/blob/master/packages/fcl-pdf/examples/testfppdf.lpr
+     *------------------------------------*)
+    function THomePdfView.createDocument(const txt : string) : TPDFDocument;
     var
         P: TPDFPage;
         S: TPDFSection;
-        i: integer;
-        lPageCount: integer;
     begin
         Result := TPDFDocument.Create(Nil);
-        Result.Infos.Title := 'Fano PDF Demo';
-        Result.Infos.Author := 'Graeme Geldenhuys';
-        Result.Infos.Producer := 'fpGUI Toolkit 1.4.1';
-        Result.Infos.ApplicationName := 'Fano Framework';
+        Result.Infos.Title := txt + ' PDF Demo';
+        Result.Infos.Author := txt;
+        Result.Infos.Producer := 'Fano Framework';
+        Result.Infos.ApplicationName := 'Fano Framework PDF demo';
         Result.Infos.CreationDate := Now;
 
         Result.StartDocument;
         S := Result.Sections.AddSection; // we always need at least one section
-        lPageCount := 1;
-        for i := 1 to lPageCount do
-        begin
-            P := Result.Pages.AddPage;
-            P.PaperType := ptA4;
-            P.UnitOfMeasure := uomMillimeters;
-            S.AddPage(P); // Add the Page to the Section
-        end;
+        P := Result.Pages.AddPage;
+        P.PaperType := ptA4;
+        P.UnitOfMeasure := uomMillimeters;
+        S.AddPage(P); // Add the Page to the Section
     end;
 
     (*!------------------------------------------------
@@ -125,10 +136,12 @@ uses
     ) : IResponse;
     var mem : TStream;
         pdf : TPdfDocument;
+        name : string;
     begin
-        pdf := createDocument();
+        name := viewParams['name'];
+        pdf := createDocument(name);
         try
-            simpleText(pdf, 0, viewParams['name']);
+            simpleText(pdf, 0, name);
             mem := TMemoryStream.create();
             pdf.saveToStream(mem);
             result := TBinaryResponse.create(
