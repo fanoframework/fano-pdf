@@ -44,7 +44,7 @@ After you setup virtual host, run application binary
 $ ./bin/app.cgi
 ```
 
-Open Internet browser and go to URL http://basic-auth.fano.
+Open Internet browser and go to URL http://pdf.fano?name=[some value].
 
 ### Free Pascal installation
 
