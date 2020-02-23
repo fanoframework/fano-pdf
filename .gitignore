@@ -1,0 +1,78 @@
+#------------------------------------------------------------
+# [[APP_NAME]] ([[APP_URL]])
+#
+# @link      [[APP_REPOSITORY_URL]]
+# @copyright Copyright (c) [[COPYRIGHT_YEAR]] [[COPYRIGHT_HOLDER]]
+# @license   [[LICENSE_URL]] ([[LICENSE]])
+#-------------------------------------------------------------
+
+#----------------------------------------------
+# Ignore any application configuration
+#----------------------------------------------
+config/config.json
+
+#----------------------------------------------
+# Ignore Apache any configuration
+#----------------------------------------------
+public/.htaccess
+
+#----------------------------------------------
+# Ignore generated binary executable
+#----------------------------------------------
+public/app.cgi
+cgi-bin/app.cgi
+bin/app.cgi
+
+#----------------------------------------------
+# Ignore generated log and sessions files
+#----------------------------------------------
+storages/logs/*
+storages/sessions/*
+
+#----------------------------------------------
+# Do not ignore README.md
+# This file is provided so Git can create
+# storages/logs directory when this repository
+# is cloned.
+#----------------------------------------------
+!storages/logs/README.md
+
+#----------------------------------------------
+# Ignore compiler switches configurations
+#----------------------------------------------
+build.cfg
+build.dev.cfg
+build.prod.cfg
+
+#----------------------------------------------
+# Ignore all generated compiled units files
+#----------------------------------------------
+bin/unit/*
+
+#----------------------------------------------
+# Do not ignore README.md
+# This file is provided so Git can create
+# bin/unit directory when this repository
+# is cloned.
+#----------------------------------------------
+!bin/README.md
+!bin/unit/README.md
+
+#----------------------------------------------
+# Ignore Free Pascal built-in console IDE generated files
+#----------------------------------------------
+fp.dir
+fp.cfg
+fp.dsk
+fp.ini
+
+#----------------------------------------------
+# Ignore Lazarus local files (user-specific info)
+#----------------------------------------------
+*.lps
+
+#----------------------------------------------
+# Ignore Visual Studio Code generated files
+#----------------------------------------------
+.vscode/
+
