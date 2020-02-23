@@ -134,14 +134,14 @@ environment variable. By default is `app.cgi` filename.
 ```
 <VirtualHost *:80>
 
-    ServerAdmin admin@basic-auth.fano
+    ServerAdmin admin@pdf.fano
     DocumentRoot "/path/to/repo/directory/public"
 
-    ServerName basic-auth.fano
-    ServerAlias *.basic-auth.fano
+    ServerName pdf.fano
+    ServerAlias *.pdf.fano
 
-    ErrorLog /var/log/apache2/basic-auth.fano-error.log
-    CustomLog /var/log/apache2/basic-auth.fano-access.log combined
+    ErrorLog /var/log/apache2/pdf.fano-error.log
+    CustomLog /var/log/apache2/pdf.fano-access.log combined
 
     <Directory "/path/to/repo/directory/public">
         Options -MultiViews -FollowSymlinks +SymlinksIfOwnerMatch +ExecCGI
