@@ -40,7 +40,7 @@ implementation
         const args : IRouteArgsReader
     ) : IResponse;
     begin
-        viewParams['name'] := request.getParam('name', 'Fano');
+        fViewParams['name'] := request.getParam('name', 'Fano');
         result := inherited handleRequest(request, response, args);
     end;
 
